@@ -1,0 +1,2 @@
+#! /bin/bash
+runwsgi wsgi/etc/zope.ini
