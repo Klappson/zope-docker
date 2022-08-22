@@ -24,5 +24,6 @@ RUN pip3 install zope \
     Paste
 
 RUN mkwsgiinstance -u klappson:12345 -d wsgi
+RUN mkzeoinstance zeo
 
 ENTRYPOINT [ "/root/StartZope" ]

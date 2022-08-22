@@ -1,2 +1,3 @@
 #! /bin/bash
+zeo/bin/zeoctl start &
 runwsgi wsgi/etc/zope.ini
