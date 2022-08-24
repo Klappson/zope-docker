@@ -1,0 +1,11 @@
+#! /bin/bash
+set -x
+
+mkdir /root/postgres_data
+chown postgres /root/postgres_data
+su postgres -c '/usr/lib/postgresql/14/bin/initdb -D /root/postgres_data'
+su postgres -c '/usr/lib/postgresql/14/bin/pg_ctl -D /root/postgres_data start'
+
+su postgres -c 'psql -c "CREATE DATABASE zopedb"'
+su postgres -c 'psql -c "CREATE USER zope PASSWORD \$\$12345\$\$"'
+su postgres -c 'psql -c "GRANT ALL PRIVILEGES ON DATABASE zopedb TO zope"'

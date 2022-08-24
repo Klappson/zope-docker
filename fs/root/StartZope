@@ -1,6 +1,7 @@
 #! /bin/bash
 set -x
 
+su postgres -c '/usr/lib/postgresql/14/bin/postgres -D /root/postgres_data' &
 zeo/bin/zeoctl start &
 runwsgi wsgi/etc/zope.ini &
 zodbsync -c /root/zodbsync_config.py playback / &

@@ -1,13 +1,24 @@
 FROM ubuntu:latest
 
 RUN apt update
-RUN apt install python3 python3-pip python3-virtualenv python3-venv haproxy git -y
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install \
+        python3 \
+        python3-pip \
+        python3-virtualenv \
+        python3-venv \
+        haproxy \
+        git \
+        postgresql-14 \
+        tree -y
 
 COPY fs/ /
 
 WORKDIR /root
 
 RUN chmod +x StartZope
+RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+RUN chmod +x setup_scripts/SetupPostgres
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC ./setup_scripts/SetupPostgres
 
 RUN pip3 install zope \
     psycopg2-binary \
