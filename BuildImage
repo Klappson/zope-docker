@@ -1,2 +1,2 @@
 #! /bin/bash
-sudo docker build -t klappson/pf-zope-setup .
+docker build -t klappson/pf-zope-setup .
