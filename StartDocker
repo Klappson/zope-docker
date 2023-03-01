@@ -1,8 +1,5 @@
 #! /bin/bash
 
-
-    # --mount type=bind,source=$(pwd)/mounts/zoperepo,target=/root/zoperepo \
-    # --mount type=bind,source=$(pwd)/mounts/postgres,target=/root/postgres_data \
 docker container stop pf-zope-docker
 docker rm pf-zope-docker
 docker run \
