@@ -1,0 +1,101 @@
+#! /usr/bin/python3
+import os
+import requests
+import threading
+import subprocess
+from time import sleep
+
+
+PG_VERSION = 14
+PG_DATA = '/vol/postgres_data'
+ZODBSYNC_CONFIG = '/root/zodbsync_config.py'
+ZODBSYNC_DIR = '/vol/zoperepo'
+
+
+def get_pg_bin(bin_name):
+    return os.path.join(f'/usr/lib/postgresql/{PG_VERSION}/bin', bin_name)
+
+
+mkdirs = [
+    PG_DATA,
+    ZODBSYNC_DIR
+]
+programs = [
+    ['su', 'postgres', '-c', f"\"{get_pg_bin('postgres')} -D {PG_DATA}\""],
+    ['zeo/bin/zeoctl', 'start'],
+    ['zodbsync', '-c', ZODBSYNC_CONFIG, 'playback', '/'],
+    ['zodbsync', '-c', ZODBSYNC_CONFIG, 'watch'],
+    ['runwsgi', 'wsgi/etc/zope.ini'],
+]
+
+
+def create_dirs(dirs, owner=None):
+    print("\n\nCreating dirs...")
+    for mkdir in dirs:
+        print(f'Creating "{mkdir}"')
+        subprocess.run(
+            ['mkdir', '-p', mkdir]
+        )
+
+        if owner:
+            subprocess.run(
+                ['chown', 'postgres', mkdir]
+            )
+
+
+def run_programs(programs):
+    print("\n\nCalling Binaries...")
+
+    magic_number = 3
+    for program in programs:
+        print(f'\nStarting "{" ".join(program)}"')
+        threading.Thread(
+            target=subprocess.run,
+            kwargs={'args': program},
+            name=' '.join(program),
+            daemon=False,
+        ).start()
+        sleep(magic_number)
+
+
+def prepare_postgres():
+    pg_setup_commands = [
+        f'{get_pg_bin("initdb")} -D {PG_DATA}',
+        f'{get_pg_bin("pg_ctl")} -D {PG_DATA} start',
+        'psql -c \'CREATE DATABASE zopedb\'',
+        'psql -c \'CREATE USER zope PASSWORD $$12345$$\'',
+        'psql -c \'GRANT ALL PRIVILEGES ON DATABASE zopedb TO zope\'',
+    ]
+
+    for pg_setup_command in pg_setup_commands:
+        su_command = ['su', 'postgres', '-c', pg_setup_command]
+        print(f"\nrunning {su_command}")
+        subprocess.run(su_command)
+
+
+def prepare_mounts():
+    print("\n\nPreparing mounts...")
+    
+    pg_setup_marker = os.path.join(PG_DATA, 'pg_setup_marker')
+    if not os.path.isfile(pg_setup_marker):
+        print(f"\n {pg_setup_marker} not found! Setting up postgres...")
+        prepare_postgres()
+
+        print(f'touching {pg_setup_marker}')
+        subprocess.run(['touch', pg_setup_marker])
+
+
+def call_zope_setup():
+    setup_url = 'http://127.0.0.1:8080/setup'
+    print(f'Calling "{setup_url}"')
+    try:
+        req = requests.get(setup_url)
+        print(req.content.decode())
+    except:
+        print('No setup-zopescript found')
+
+if __name__ == '__main__':
+    create_dirs(mkdirs, 'postgres')
+    prepare_mounts()
+    run_programs(programs)
+    call_zope_setup()

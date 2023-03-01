@@ -11,15 +11,6 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install \
         postgresql-14 \
         tree -y
 
-COPY fs/ /
-
-WORKDIR /root
-
-RUN chmod +x StartZope
-RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
-RUN chmod +x setup_scripts/SetupPostgres
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC ./setup_scripts/SetupPostgres
-
 RUN pip3 install zope \
     psycopg2-binary \
     Products.PythonScripts \
@@ -32,9 +23,15 @@ RUN pip3 install zope \
     Products.Sessions \
     git+https://github.com/perfact/ZPsycopgDA \
     git+https://github.com/perfact/zodbsync \
-    Paste
+    Paste \
+    requests
 
+COPY fs/ /
+
+RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
+
+WORKDIR /root
 RUN mkwsgiinstance -u klappson:12345 -d wsgi
 RUN mkzeoinstance zeo
 
-ENTRYPOINT [ "/root/StartZope" ]
+ENTRYPOINT [ "StartZope" ]

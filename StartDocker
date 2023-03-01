@@ -1,8 +1,12 @@
 #! /bin/bash
-#--mount type=bind,source=$(pwd)/mounts/postgres,target=/root/postgres_data \
+
+
+    # --mount type=bind,source=$(pwd)/mounts/zoperepo,target=/root/zoperepo \
+    # --mount type=bind,source=$(pwd)/mounts/postgres,target=/root/postgres_data \
+docker container stop pf-zope-docker
+docker rm pf-zope-docker
 docker run \
     -it \
     -p 8080:8080 \
-    -p 5432:5432 \
-    --mount type=bind,source=$(pwd)/mounts/zoperepo,target=/root/zoperepo \
+    --name pf-zope-docker \
     klappson/pf-zope-setup

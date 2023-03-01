@@ -1,2 +1,3 @@
 #! /bin/bash
+docker image rm klappson/pf-zope-setup --force
 docker build -t klappson/pf-zope-setup .
