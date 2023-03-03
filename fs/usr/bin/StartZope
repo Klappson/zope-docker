@@ -27,7 +27,7 @@ mkdirs = [
     os.path.join(CONFIG_DIR, 'postgres'),
 ]
 programs = [
-    ['su', 'postgres', '-c', f"\"{get_pg_bin('postgres')} -D {PG_DATA}\""],
+    ['su', 'postgres', '-c', f"{get_pg_bin('postgres')} -D {PG_DATA}"],
     ['zeo/bin/zeoctl', 'start'],
     ['zodbsync', '-c', ZODBSYNC_CONFIG, 'playback', '/'],
     ['zodbsync', '-c', ZODBSYNC_CONFIG, 'watch'],
@@ -108,6 +108,14 @@ def prepare_default_configs():
 def prepare_mounts():
     print("\n\nPreparing mounts...")
     
+    subprocess.run(['chmod', '777', '/vol', '-R'])
+    subprocess.run(['ls', '-lisah', '/vol'])
+
+    subprocess.run(['chown', 'postgres', PG_DATA, '-R'])
+    subprocess.run(['su', 'postgres', '-c', f'chmod 0750 {PG_DATA} -R'])
+
+    subprocess.run(['ls', '-lisah', '/vol'])
+
     pg_setup_marker = os.path.join(PG_DATA, 'pg_setup_marker')
     if not os.path.isfile(pg_setup_marker):
         print(f"\n {pg_setup_marker} not found! Setting up postgres...")
