@@ -10,15 +10,21 @@ PG_VERSION = 14
 PG_DATA = '/vol/postgres_data'
 ZODBSYNC_CONFIG = '/root/zodbsync_config.py'
 ZODBSYNC_DIR = '/vol/zoperepo'
+CONFIG_DIR = '/vol/config'
 
 
 def get_pg_bin(bin_name):
     return os.path.join(f'/usr/lib/postgresql/{PG_VERSION}/bin', bin_name)
 
+def get_pg_cfg(cfg_name):
+    return os.path.join('/etc/postgresql/14/main/', cfg_name)
+
 
 mkdirs = [
     PG_DATA,
-    ZODBSYNC_DIR
+    ZODBSYNC_DIR,
+    CONFIG_DIR,
+    os.path.join(CONFIG_DIR, 'postgres'),
 ]
 programs = [
     ['su', 'postgres', '-c', f"\"{get_pg_bin('postgres')} -D {PG_DATA}\""],
@@ -73,6 +79,32 @@ def prepare_postgres():
         subprocess.run(su_command)
 
 
+def prepare_default_configs():
+    symlinks = [
+        # target, linkname, default
+        (os.path.join(CONFIG_DIR, 'zope.conf'),
+         '/root/wsgi/etc/zope.conf',
+         '/root/default_config/zope.conf'),
+        
+        (os.path.join(CONFIG_DIR, 'zope.ini'),
+         '/root/wsgi/etc/zope.ini',
+         '/root/default_config/zope.ini'),
+        
+        (os.path.join(CONFIG_DIR, 'postgres/postgresql.conf'),
+         get_pg_cfg('postgresql.conf'),
+         '/root/default_config/postgres/postgresql.conf'),
+        
+        (os.path.join(CONFIG_DIR, 'postgres/pg_hba.conf'),
+         get_pg_cfg('pg_hba.conf'),
+         '/root/default_config/postgres/pg_hba.conf')
+    ]
+
+    for symlink in symlinks:
+        subprocess.run(['cp', '-R', symlink[2], symlink[0]])
+        subprocess.run(['rm', symlink[1]])
+        subprocess.run(['ln', '-s', symlink[0], symlink[1]])
+
+
 def prepare_mounts():
     print("\n\nPreparing mounts...")
     
@@ -83,6 +115,15 @@ def prepare_mounts():
 
         print(f'touching {pg_setup_marker}')
         subprocess.run(['touch', pg_setup_marker])
+    
+    cfg_setup_marker = os.path.join(CONFIG_DIR, 'cfg_setup_marker')
+    if not os.path.isfile(cfg_setup_marker):
+        print(f"\n {cfg_setup_marker} not found! Setting copying defaults...")
+        prepare_default_configs()
+
+        print(f'touching {cfg_setup_marker}')
+        subprocess.run(['touch', cfg_setup_marker])
+
 
 
 def call_zope_setup():
@@ -93,6 +134,7 @@ def call_zope_setup():
         print(req.content.decode())
     except:
         print('No setup-zopescript found')
+
 
 if __name__ == '__main__':
     create_dirs(mkdirs, 'postgres')

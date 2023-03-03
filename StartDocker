@@ -2,8 +2,11 @@
 
 docker container stop pf-zope-docker
 docker rm pf-zope-docker
+
+# Example for adding a mount
+--mount type=bind,source=$(pwd)/mounts/,target=/vol/ \
+
 docker run \
-    -it \
     -p 8080:8080 \
     --name pf-zope-docker \
     klappson/pf-zope-setup
