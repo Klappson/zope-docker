@@ -1,12 +1,13 @@
 #! /bin/bash
 
-docker container stop pf-zope-docker
-docker rm pf-zope-docker
+docker container stop zope-docker || true
+docker rm zope-docker || true
 
 # Example for adding a mount
---mount type=bind,source=$(pwd)/mounts/,target=/vol/ \
+# --mount type=bind,source=<REPLACE ME WITH A REAL PTH>,target=/vol \
 
 docker run \
     -p 8080:8080 \
-    --name pf-zope-docker \
-    klappson/pf-zope-setup
+    -it \
+    --name zope-docker \
+    klappson/docker-zope-setup

@@ -1,0 +1,11 @@
+[
+    ('autocommit', None),
+    ('connection_string', 'dbname=zopedb user=zope password=12345 host=127.0.0.1'),
+    ('encoding', ''),
+    ('owner', (['acl_users'], 'klappson')),
+    ('readonlymode', None),
+    ('tilevel', 1),
+    ('title', 'dockerdb'),
+    ('type', 'Z Psycopg 2 Database Connection'),
+    ('zdatetime', None),
+]
