@@ -31,7 +31,7 @@ mkdirs = [
 programs = [
     ['su', 'postgres', '-c', f"{get_pg_bin('postgres')} -D {PG_DATA}"],
     ['zeo/bin/zeoctl', 'start'],
-    ['zodbsync', '-c', ZODBSYNC_CONFIG, 'playback', '/'],
+    ['zodbsync', '-c', ZODBSYNC_CONFIG, 'playback' , '--override', '/'],
     ['zodbsync', '-c', ZODBSYNC_CONFIG, 'watch'],
     ['runwsgi', 'wsgi/etc/zope.ini'],
 ]
@@ -166,7 +166,8 @@ def create_zope_objects():
     
     if changes:
         print('Playing back zope objects...')
-        subprocess.run(['zodbsync', '-c', ZODBSYNC_CONFIG, 'playback', '/'])
+        subprocess.run([
+            'zodbsync', '-c', ZODBSYNC_CONFIG, 'playback', '--override' ,'/'])
 
 
 if __name__ == '__main__':
