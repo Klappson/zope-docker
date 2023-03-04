@@ -21,7 +21,24 @@ def get_pg_bin(bin_name):
 def get_pg_cfg(cfg_name):
     return os.path.join('/etc/postgresql/14/main/', cfg_name)
 
-
+config_symlinks = [
+    # target, linkname, default
+    (os.path.join(CONFIG_DIR, 'zope.conf'),
+        '/root/wsgi/etc/zope.conf',
+        '/root/default_config/zope.conf'),
+    
+    (os.path.join(CONFIG_DIR, 'zope.ini'),
+        '/root/wsgi/etc/zope.ini',
+        '/root/default_config/zope.ini'),
+    
+    (os.path.join(CONFIG_DIR, 'postgres/postgresql.conf'),
+        get_pg_cfg('postgresql.conf'),
+        '/root/default_config/postgres/postgresql.conf'),
+    
+    (os.path.join(CONFIG_DIR, 'postgres/pg_hba.conf'),
+        get_pg_cfg('pg_hba.conf'),
+        '/root/default_config/postgres/pg_hba.conf')
+]
 mkdirs = [
     PG_DATA,
     ZODBSYNC_DIR,
@@ -81,30 +98,16 @@ def prepare_postgres():
         subprocess.run(su_command)
 
 
-def prepare_default_configs():
-    symlinks = [
-        # target, linkname, default
-        (os.path.join(CONFIG_DIR, 'zope.conf'),
-         '/root/wsgi/etc/zope.conf',
-         '/root/default_config/zope.conf'),
-        
-        (os.path.join(CONFIG_DIR, 'zope.ini'),
-         '/root/wsgi/etc/zope.ini',
-         '/root/default_config/zope.ini'),
-        
-        (os.path.join(CONFIG_DIR, 'postgres/postgresql.conf'),
-         get_pg_cfg('postgresql.conf'),
-         '/root/default_config/postgres/postgresql.conf'),
-        
-        (os.path.join(CONFIG_DIR, 'postgres/pg_hba.conf'),
-         get_pg_cfg('pg_hba.conf'),
-         '/root/default_config/postgres/pg_hba.conf')
-    ]
-
-    for symlink in symlinks:
-        subprocess.run(['cp', '-R', symlink[2], symlink[0]])
+def prepare_config_symlinks():
+    print(f"\nCreating symlinks to vol/config/* files...")
+    for symlink in config_symlinks:
         subprocess.run(['rm', symlink[1]])
         subprocess.run(['ln', '-s', symlink[0], symlink[1]])
+
+def copy_default_configs():
+    print(f'\nCopying default configs to {CONFIG_DIR}')
+    for symlink in config_symlinks:
+        subprocess.run(['cp', '-R', symlink[2], symlink[0]])
 
 
 def prepare_mounts():
@@ -129,10 +132,12 @@ def prepare_mounts():
     cfg_setup_marker = os.path.join(CONFIG_DIR, 'cfg_setup_marker')
     if not os.path.isfile(cfg_setup_marker):
         print(f"\n {cfg_setup_marker} not found! Setting copying defaults...")
-        prepare_default_configs()
+        copy_default_configs()
 
         print(f'touching {cfg_setup_marker}')
         subprocess.run(['touch', cfg_setup_marker])
+    
+    prepare_config_symlinks()
 
 
 
