@@ -31,7 +31,7 @@ COPY fs/ /
 RUN printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d
 
 WORKDIR /root
-RUN mkwsgiinstance -u klappson:12345 -d wsgi
+RUN mkwsgiinstance -u dockerzope:12345 -d wsgi
 RUN mkzeoinstance zeo
 
 ENTRYPOINT [ "StartZope" ]

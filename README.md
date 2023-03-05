@@ -7,7 +7,7 @@ The Idea behind this is that rolling out a zope-project is a pain in the arse.
 ATM if you want to rollout a zope-project you have to setup the python-env, install products, create a database, prepare the database load the Data.FS and so on. If you are reading this, you might know what I'm talking about at this point
 
 This docker will create a zope-installation where this whole spiel is already done for you!
-Your zope-project will only be a dir consisting of a zoperepo-dir, which contains a zodbsync-dump and a config-dir, which will contain various config files.
+Your zope-project will only be a dir consisting of a zoperepo-dir, which contains a ZODBsync dump and a config-dir, which will contain various config files.
 (More dirs/files may be added in the future, but the spirit will be kept)
 
 ---
@@ -76,13 +76,13 @@ This can be done by adding the "--mount" parameter to your docker run command
 ## Contents of /vol
 
 ### /vol/zoperepo
-This folder will contain a [ZODBsync](https://github.com/perfact/zodbsync)-dump of zope's Data.FS.
+This folder will contain a [ZODBsync](https://github.com/perfact/zodbsync) dump of zope's Data.FS.
 
-A ZODBsync-dump is basically a representation of zope's folder structure but on a normal file-system. The contents of this folder will be shoved into the Data.FS on every startup of the container
+A ZODBsync dump is basically a representation of zope's folder structure but on a normal file-system. The contents of this folder will be shoved into the Data.FS on every startup of the container
 
 
 ### /vol/postgres_data
-This folder is a postgres-data dir. it's just there to ensure persistence of the postgres-DB.
+This folder is a postgres data dir. it's just there to ensure persistence of the postgres-DB.
 
 Keep in mind that you should not add this dir to any git repos. You will run into problems regarding permissions and stuff
 
