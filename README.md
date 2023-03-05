@@ -1,5 +1,16 @@
 # The Zope-Docker - Rollout Zope-Stuff and Chill
 
+## tl;dr
+* Where should I mount for persistence?
+    * /vol
+* Login credentials for zope manage user?
+    * dockerzope:12345
+    * This can be changed in the Dockerfile or in Zope
+* Login credentials for postgres?
+    * user: zope
+    * database: zopedb
+    * pw: 12345
+
 ## The problem I want to address
 
 The Idea behind this is that rolling out a zope-project is a pain in the arse.
