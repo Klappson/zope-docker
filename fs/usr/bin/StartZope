@@ -37,13 +37,18 @@ config_symlinks = [
     
     (os.path.join(CONFIG_DIR, 'postgres/pg_hba.conf'),
         get_pg_cfg('pg_hba.conf'),
-        '/root/default_config/postgres/pg_hba.conf')
+        '/root/default_config/postgres/pg_hba.conf'),
+    
+    (os.path.join(CONFIG_DIR, 'haproxy/haproxy.cfg'),
+        '/etc/haproxy/haproxy.cfg',
+        '/root/default_config/haproxy/haproxy.cfg')
 ]
 mkdirs = [
     PG_DATA,
     ZODBSYNC_DIR,
     CONFIG_DIR,
     os.path.join(CONFIG_DIR, 'postgres'),
+    os.path.join(CONFIG_DIR, 'haproxy'),
 ]
 programs = [
     ['su', 'postgres', '-c', f"{get_pg_bin('postgres')} -D {PG_DATA}"],
