@@ -21,6 +21,7 @@ def get_pg_bin(bin_name):
 def get_pg_cfg(cfg_name):
     return os.path.join('/etc/postgresql/14/main/', cfg_name)
 
+
 config_symlinks = [
     # target, linkname, default
     (os.path.join(CONFIG_DIR, 'zope.conf'),
@@ -49,6 +50,7 @@ mkdirs = [
     CONFIG_DIR,
     os.path.join(CONFIG_DIR, 'postgres'),
     os.path.join(CONFIG_DIR, 'haproxy'),
+    os.path.join(CONFIG_DIR, 'haproxy/cert'),
 ]
 programs = [
     ['su', 'postgres', '-c', f"{get_pg_bin('postgres')} -D {PG_DATA}"],
@@ -109,6 +111,7 @@ def prepare_config_symlinks():
         subprocess.run(['rm', symlink[1]])
         subprocess.run(['ln', '-s', symlink[0], symlink[1]])
 
+
 def copy_default_configs():
     print(f'\nCopying default configs to {CONFIG_DIR}')
     for symlink in config_symlinks:
@@ -143,7 +146,6 @@ def prepare_mounts():
         subprocess.run(['touch', cfg_setup_marker])
     
     prepare_config_symlinks()
-
 
 
 def call_zope_setup():
